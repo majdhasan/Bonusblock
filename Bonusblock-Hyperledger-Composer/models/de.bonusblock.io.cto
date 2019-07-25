@@ -1,0 +1,116 @@
+namespace de.bonusblock.io
+
+//--------------------------------------
+// List of Participants
+//--------------------------------------
+
+abstract participant user identified by userID { // Abstract class - User
+  o String userID
+  o String address
+  o String city
+  o String email
+}
+
+participant bonusblockAdmin extends user { // System admin
+  o String name
+  o String information optional
+}
+
+participant Person extends user { // Members
+  o String firstName
+  o String lastName
+  --> Insurance insurance optional
+  o Double rewardAccount
+}
+
+participant Insurance extends user { // Insurances
+  o String name
+  o String information optional
+}
+
+
+//--------------------------------------
+// List of Assets
+//--------------------------------------
+
+asset Record identified by recordID { //member records
+  o String recordID
+  --> Person actor
+  o Double amount
+  o Double value  default= 1.0 // The value per amount=1
+  o RecordStatus status default = 'SAVED'
+  o RecordType type
+}
+
+enum RecordStatus {
+  o SAVED
+  o REQUESTED
+  o REWARDED
+}
+
+enum RecordType {
+  o CALORIES
+  o STEPS
+  o DISTANCE
+}
+
+asset RewardRequest identified by RewardRequestID { // members reward Requests
+  o String RewardRequestID
+  --> Person member
+  --> Insurance insurance optional
+  o Double amount
+  o RequestStatus status default = 'PENDING'
+}
+
+enum RequestStatus {
+  o PENDING
+  o ACCEPTED
+}
+
+//--------------------------------------
+// List of Transactions
+//--------------------------------------
+
+//Members Transactions 
+
+transaction RequestReward {
+  o String RewardRequestID
+  --> Person member
+}
+
+transaction StoreRecord {
+  o String recordID
+  o RecordType type
+  o Double amount
+  o Double value
+  --> Person actor
+}
+//Insurance Transactions 
+
+transaction RegisterMember { //Changing insurance
+  --> Person member
+  --> Insurance insurance
+}
+
+transaction  UnregisterMember { // Leaving insurance
+  --> Person member
+  --> Insurance insurance
+}
+
+transaction RewardMember { 
+  --> RewardRequest request
+}
+
+//--------------------------------------
+// List of Events
+//--------------------------------------
+
+
+event RewardRequested {
+o String rewardID
+--> Person person
+--> Insurance insurance
+}
+
+
+
